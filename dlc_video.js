@@ -37,10 +37,10 @@ export async function analyzeDlcVideo(file, config, onProgress, modelFile) {
       await waitForVideo(video, "loadeddata", () => { video.src = source; });
     } catch {
       onProgress(0, "Preparando un formato compatible en este navegador…");
-      const {convertVideoForBrowser} = await import("./video_compat.js");
+      const {convertVideoForBrowser} = await import("./video_compat.js?v=compat2");
       let compatible;
       try {
-        compatible = await convertVideoForBrowser(file);
+        compatible = await convertVideoForBrowser(file, message => onProgress(0, message));
       } catch {
         throw new Error("No se pudo abrir ni convertir este video. Prueba con un MP4 H.264 válido.");
       }

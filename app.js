@@ -1,4 +1,4 @@
-import { analyzeDlcVideo, samplesPerSecond } from "./dlc_video.js?v=compat1";
+import { analyzeDlcVideo, samplesPerSecond } from "./dlc_video.js?v=compat2";
 
 const form = document.querySelector("form");
 const start = document.querySelector("#start");
@@ -74,15 +74,17 @@ async function analyze(video, engine) {
   progress.max = 1;
   progress.setAttribute("aria-label", engineNames[engine]);
   title.textContent = engineNames[engine];
-  label.textContent = "Subiendo video…";
+  label.textContent = browserDlc ? "Abriendo video en este navegador…" : "Subiendo video…";
   card.append(title, label, progress);
   jobs.append(card);
   try {
     if (browserDlc && engine === "dlc") {
+      connection.textContent = label.textContent;
       const modelFile = document.querySelector("#model-file").files[0];
       const csv = await analyzeDlcVideo(video, browserDlc, (fraction, message) => {
         progress.value = fraction;
         label.textContent = message;
+        connection.textContent = message;
       }, modelFile);
       label.textContent = `Coordenadas provisionales · ${samplesPerSecond} muestras/s`;
       const button = document.createElement("button");
@@ -90,6 +92,7 @@ async function analyze(video, engine) {
       button.textContent = "Descargar coordenadas CSV";
       button.addEventListener("click", () => download(csv, "dlc-v4-coordenadas.csv"));
       card.append(button);
+      connection.textContent = "Análisis listo. El CSV está disponible en Resultados.";
       return;
     }
     const response = await request("/jobs/" + engine, {
@@ -129,6 +132,7 @@ async function analyze(video, engine) {
     }
   } catch (error) {
     label.textContent = error.message;
+    if (browserDlc) connection.textContent = error.message;
     progress.remove();
   }
 }
@@ -142,6 +146,7 @@ form.addEventListener("submit", async event => {
   }
   const choice = document.querySelector("#engine").value;
   start.disabled = true;
+  if (browserDlc) start.textContent = "Analizando…";
   connection.textContent = "";
   results.hidden = false;
   try {
@@ -150,6 +155,7 @@ form.addEventListener("submit", async event => {
     }
   } finally {
     start.disabled = false;
+    start.textContent = "Analizar video";
   }
 });
 
