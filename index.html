@@ -6,7 +6,8 @@
   <meta name="description" content="Análisis 2D de marcha con DeepLabCut V4 y Sports2D.">
   <title>GaitLab 2D · Análisis de marcha</title>
   <link rel="stylesheet" href="style.css?v=visual1">
-  <script src="app.js?v=visual1" type="module"></script>
+  <script type="application/json" id="deployment-config">{"browserDlc":{"runtime":"https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.webgpu.min.mjs","wasm":"https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/","model":"./snapshot-best-180-browser.onnx"}}</script>
+  <script src="app.js?v=start2" type="module"></script>
 </head>
 <body>
   <header>GaitLab <span>2D</span></header>
@@ -29,7 +30,7 @@
       </select>
       <label class="consent"><input type="checkbox" required> <span id="consent-label">Tengo autorización para enviar y analizar este video.</span></label>
       <button id="start" disabled>Analizar video</button>
-      <p id="connection" role="status">Comprobando el servicio de análisis…</p>
+      <p id="connection" role="status">Cargando la página de análisis…</p>
     </form>
     <section id="results" hidden aria-labelledby="results-title">
       <h2 id="results-title">Resultados</h2>

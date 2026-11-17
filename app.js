@@ -1,6 +1,3 @@
-import { analyzeDlcVideo, samplesPerSecond } from "./dlc_video.js?v=visual1";
-import { showDlcResults } from "./dlc_results.js";
-
 const form = document.querySelector("form");
 const start = document.querySelector("#start");
 const connection = document.querySelector("#connection");
@@ -27,15 +24,17 @@ async function request(path, options) {
 
 async function connect() {
   try {
-    const response = await fetch("config.json", {cache: "no-store"});
-    const config = await response.json();
+    const embedded = document.querySelector("#deployment-config");
+    const config = embedded ? JSON.parse(embedded.textContent) : await fetch("config.json", {
+      cache: "no-store", signal: AbortSignal.timeout(10000),
+    }).then(response => response.json());
     if (config.browserDlc) {
       browserDlc = config.browserDlc;
       const selector = document.querySelector("#engine");
       selector.replaceChildren(new Option("DeepLabCut V4", "dlc"));
       document.querySelector("#description").textContent = "Extrae coordenadas de marcha con DeepLabCut V4.";
       document.querySelector("#consent-label").textContent = "Tengo autorización para analizar este video.";
-      document.querySelector("#limits").textContent = `MP4 o MOV · hasta 50 MB y 15 segundos · ${samplesPerSecond} muestras/s`;
+      document.querySelector("#limits").textContent = "MP4 o MOV · hasta 50 MB y 15 segundos · 5 muestras/s";
       if (!config.browserDlc.model) {
         document.querySelector("#local-model").hidden = false;
         document.querySelector("#model-file").required = true;
@@ -81,6 +80,9 @@ async function analyze(video, engine) {
   try {
     if (browserDlc && engine === "dlc") {
       connection.textContent = label.textContent;
+      const [{analyzeDlcVideo, samplesPerSecond}, {showDlcResults}] = await Promise.all([
+        import("./dlc_video.js?v=visual1"), import("./dlc_results.js"),
+      ]);
       const modelFile = document.querySelector("#model-file").files[0];
       const result = await analyzeDlcVideo(video, browserDlc, (fraction, message) => {
         progress.value = fraction;
