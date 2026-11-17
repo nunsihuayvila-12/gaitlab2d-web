@@ -1,0 +1,30 @@
+:root {
+  color-scheme: light;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: #162a26;
+  background: #eff4f0;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+header { padding: 22px clamp(24px, 7vw, 96px); border-bottom: 1px solid #cbdad1; font-weight: 750; }
+header span { color: #17664f; }
+main { width: min(650px, calc(100% - 32px)); margin: 48px auto; }
+h1 { font-size: clamp(2.35rem, 7vw, 4rem); line-height: 1; letter-spacing: -.06em; margin: 0; }
+p { line-height: 1.55; }
+form, article { padding: clamp(18px, 4vw, 28px); background: white; border: 1px solid #cbdad1; border-radius: 14px; }
+form { display: grid; gap: 10px; margin-top: 26px; }
+label { font-weight: 650; }
+small, #connection { color: #425b51; }
+small { margin-bottom: 12px; }
+select, input, button { font: inherit; }
+select, input[type="file"], button { padding: 10px; border: 1px solid #809f92; border-radius: 7px; }
+.consent { margin: 8px 0; font-weight: 400; }
+button { background: #17664f; color: white; cursor: pointer; font-weight: 650; }
+button:disabled { opacity: .55; cursor: default; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid #b27113; outline-offset: 3px; }
+#connection { margin: 0; }
+#connection:empty { display: none; }
+article { margin: 12px 0; }
+article h3 { margin-top: 0; }
+progress { width: 100%; accent-color: #17664f; }
+article button { margin: 6px 6px 0 0; }

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Análisis 2D de marcha con DeepLabCut V4 y Sports2D.">
+  <title>GaitLab 2D · Análisis de marcha</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" type="module"></script>
+</head>
+<body>
+  <header>GaitLab <span>2D</span></header>
+  <main>
+    <h1>Analiza tu marcha</h1>
+    <p>Sube un video y compara las salidas de DeepLabCut V4 y Sports2D.</p>
+    <form>
+      <label for="video">Video</label>
+      <input id="video" type="file" accept=".mp4,.mov" aria-describedby="limits" required>
+      <small id="limits">MP4 o MOV · hasta 50 MB, 15 segundos y 600 fotogramas</small>
+      <label for="engine">Motor</label>
+      <select id="engine">
+        <option value="both">Ambos motores</option>
+        <option value="dlc">DeepLabCut V4</option>
+        <option value="sports2d">Sports2D</option>
+      </select>
+      <label class="consent"><input type="checkbox" required> Tengo autorización para enviar y analizar este video.</label>
+      <button id="start" disabled>Analizar video</button>
+      <p id="connection" role="status">Comprobando el servicio de análisis…</p>
+    </form>
+    <section id="results" hidden aria-labelledby="results-title">
+      <h2 id="results-title">Resultados</h2>
+      <p>Salidas provisionales. Descárgalas antes de cerrar esta página.</p>
+      <div id="jobs" aria-live="polite"></div>
+    </section>
+  </main>
+</body>
+</html>
