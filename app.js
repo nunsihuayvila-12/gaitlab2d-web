@@ -1,4 +1,5 @@
-import { analyzeDlcVideo, samplesPerSecond } from "./dlc_video.js?v=compat2";
+import { analyzeDlcVideo, samplesPerSecond } from "./dlc_video.js?v=visual1";
+import { showDlcResults } from "./dlc_results.js";
 
 const form = document.querySelector("form");
 const start = document.querySelector("#start");
@@ -81,7 +82,7 @@ async function analyze(video, engine) {
     if (browserDlc && engine === "dlc") {
       connection.textContent = label.textContent;
       const modelFile = document.querySelector("#model-file").files[0];
-      const csv = await analyzeDlcVideo(video, browserDlc, (fraction, message) => {
+      const result = await analyzeDlcVideo(video, browserDlc, (fraction, message) => {
         progress.value = fraction;
         label.textContent = message;
         connection.textContent = message;
@@ -90,7 +91,8 @@ async function analyze(video, engine) {
       const button = document.createElement("button");
       button.type = "button";
       button.textContent = "Descargar coordenadas CSV";
-      button.addEventListener("click", () => download(csv, "dlc-v4-coordenadas.csv"));
+      button.addEventListener("click", () => download(result.csv, "dlc-v4-coordenadas.csv"));
+      showDlcResults(card, result, samplesPerSecond);
       card.append(button);
       connection.textContent = "Análisis listo. El CSV está disponible en Resultados.";
       return;

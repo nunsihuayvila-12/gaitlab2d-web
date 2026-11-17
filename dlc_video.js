@@ -31,6 +31,7 @@ export async function analyzeDlcVideo(file, config, onProgress, modelFile) {
   video.muted = true;
   video.playsInline = true;
   let source = URL.createObjectURL(file);
+  let playback = file;
   let session;
   try {
     try {
@@ -45,6 +46,7 @@ export async function analyzeDlcVideo(file, config, onProgress, modelFile) {
         throw new Error("No se pudo abrir ni convertir este video. Prueba con un MP4 H.264 válido.");
       }
       URL.revokeObjectURL(source);
+      playback = compatible;
       source = URL.createObjectURL(compatible);
       await waitForVideo(video, "loadeddata", () => { video.src = source; });
     }
@@ -83,6 +85,7 @@ export async function analyzeDlcVideo(file, config, onProgress, modelFile) {
     const count = Math.ceil(video.duration * samplesPerSecond);
     const rows = [["sample", "requested_time_s", ...bodyparts.flatMap(
       name => [name + "_x", name + "_y", name + "_likelihood"])]];
+    const samples = [];
     for (let sample = 0; sample < count; sample++) {
       const timestamp = sample / samplesPerSecond;
       if (video.currentTime !== timestamp) {
@@ -94,12 +97,14 @@ export async function analyzeDlcVideo(file, config, onProgress, modelFile) {
       const outputs = await session.run({rgb: new ort.Tensor(
         "float32", rgb, [1, 3, canvas.height, canvas.width])});
       const points = decodeBodyparts(outputs.heatmap, outputs.locref, 8, 7.2801);
-      rows.push([sample, timestamp, ...points.flatMap(({x, y, likelihood}) => [
-        x * video.videoWidth / canvas.width, y * video.videoHeight / canvas.height, likelihood,
-      ])]);
+      const scaled = points.map(point => ({...point, x: point.x * video.videoWidth / canvas.width,
+        y: point.y * video.videoHeight / canvas.height}));
+      samples.push({timestamp, points: scaled});
+      rows.push([sample, timestamp, ...scaled.flatMap(({x, y, likelihood}) => [x, y, likelihood])]);
       onProgress((sample + 1) / count, `Muestras procesadas: ${sample + 1} de ${count}`);
     }
-    return new Blob([rows.map(row => row.join(",")).join("\n") + "\n"], {type: "text/csv"});
+    const csv = new Blob([rows.map(row => row.join(",")).join("\n") + "\n"], {type: "text/csv"});
+    return {csv, samples, playback};
   } finally {
     video.removeAttribute("src");
     video.load();
