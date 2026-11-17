@@ -1,4 +1,4 @@
-import { analyzeDlcVideo, samplesPerSecond } from "./dlc_video.js";
+import { analyzeDlcVideo, samplesPerSecond } from "./dlc_video.js?v=compat1";
 
 const form = document.querySelector("form");
 const start = document.querySelector("#start");
@@ -34,7 +34,7 @@ async function connect() {
       selector.replaceChildren(new Option("DeepLabCut V4", "dlc"));
       document.querySelector("#description").textContent = "Extrae coordenadas de marcha con DeepLabCut V4.";
       document.querySelector("#consent-label").textContent = "Tengo autorización para analizar este video.";
-      document.querySelector("#limits").textContent = `MP4 H.264 · hasta 50 MB y 15 segundos · ${samplesPerSecond} muestras/s`;
+      document.querySelector("#limits").textContent = `MP4 o MOV · hasta 50 MB y 15 segundos · ${samplesPerSecond} muestras/s`;
       if (!config.browserDlc.model) {
         document.querySelector("#local-model").hidden = false;
         document.querySelector("#model-file").required = true;

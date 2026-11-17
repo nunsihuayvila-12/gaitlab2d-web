@@ -30,10 +30,24 @@ export async function analyzeDlcVideo(file, config, onProgress, modelFile) {
   video.preload = "auto";
   video.muted = true;
   video.playsInline = true;
-  const source = URL.createObjectURL(file);
+  let source = URL.createObjectURL(file);
   let session;
   try {
-    await waitForVideo(video, "loadeddata", () => { video.src = source; });
+    try {
+      await waitForVideo(video, "loadeddata", () => { video.src = source; });
+    } catch {
+      onProgress(0, "Preparando un formato compatible en este navegador…");
+      const {convertVideoForBrowser} = await import("./video_compat.js");
+      let compatible;
+      try {
+        compatible = await convertVideoForBrowser(file);
+      } catch {
+        throw new Error("No se pudo abrir ni convertir este video. Prueba con un MP4 H.264 válido.");
+      }
+      URL.revokeObjectURL(source);
+      source = URL.createObjectURL(compatible);
+      await waitForVideo(video, "loadeddata", () => { video.src = source; });
+    }
     if (!video.videoWidth || !video.videoHeight || !(video.duration > 0 && video.duration <= 15)) {
       throw new Error("El video debe durar hasta 15 segundos y tener dimensiones válidas.");
     }
