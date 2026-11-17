@@ -40,3 +40,4 @@ article button { margin: 6px 6px 0 0; }
 .dlc-player { position: relative; background: #162a26; overflow: hidden; border-radius: 8px; }
 .dlc-player video, .dlc-player canvas { display: block; width: 100%; height: auto; }
 .dlc-player canvas { position: absolute; inset: 0; pointer-events: none; }
+#resolution-options:not([hidden]) { display: grid; gap: 5px; }

@@ -1,7 +1,6 @@
 import { bodyparts, decodeBodyparts, normalizePixels } from "./dlc_pose.js";
 
 export const samplesPerSecond = 5;
-const maxWidth = 640;
 
 function waitForVideo(video, event, action) {
   return new Promise((resolve, reject) => {
@@ -25,7 +24,7 @@ function waitForVideo(video, event, action) {
   });
 }
 
-export async function analyzeDlcVideo(file, config, onProgress, modelFile) {
+export async function analyzeDlcVideo(file, config, onProgress, modelFile, maxDimension) {
   const video = document.createElement("video");
   video.preload = "auto";
   video.muted = true;
@@ -78,7 +77,7 @@ export async function analyzeDlcVideo(file, config, onProgress, modelFile) {
     session = await ort.InferenceSession.create(model, {executionProviders: ["webgpu"]});
 
     const canvas = document.createElement("canvas");
-    const scale = Math.min(1, maxWidth / Math.max(video.videoWidth, video.videoHeight));
+    const scale = Math.min(1, maxDimension / Math.max(video.videoWidth, video.videoHeight));
     canvas.width = Math.max(1, Math.round(video.videoWidth * scale));
     canvas.height = Math.max(1, Math.round(video.videoHeight * scale));
     const context = canvas.getContext("2d", {willReadFrequently: true});
@@ -101,10 +100,10 @@ export async function analyzeDlcVideo(file, config, onProgress, modelFile) {
         y: point.y * video.videoHeight / canvas.height}));
       samples.push({timestamp, points: scaled});
       rows.push([sample, timestamp, ...scaled.flatMap(({x, y, likelihood}) => [x, y, likelihood])]);
-      onProgress((sample + 1) / count, `Muestras procesadas: ${sample + 1} de ${count}`);
+      onProgress((sample + 1) / count, `Muestras procesadas: ${sample + 1} de ${count} · ${canvas.width} × ${canvas.height} px`);
     }
     const csv = new Blob([rows.map(row => row.join(",")).join("\n") + "\n"], {type: "text/csv"});
-    return {csv, samples, playback};
+    return {csv, samples, playback, width: canvas.width, height: canvas.height};
   } finally {
     video.removeAttribute("src");
     video.load();

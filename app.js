@@ -30,6 +30,7 @@ async function connect() {
     }).then(response => response.json());
     if (config.browserDlc) {
       browserDlc = config.browserDlc;
+      document.querySelector("#resolution-options").hidden = false;
       const selector = document.querySelector("#engine");
       selector.replaceChildren(new Option("DeepLabCut V4", "dlc"));
       document.querySelector("#description").textContent = "Extrae coordenadas de marcha con DeepLabCut V4.";
@@ -81,15 +82,16 @@ async function analyze(video, engine) {
     if (browserDlc && engine === "dlc") {
       connection.textContent = label.textContent;
       const [{analyzeDlcVideo, samplesPerSecond}, {showDlcResults}] = await Promise.all([
-        import("./dlc_video.js?v=visual1"), import("./dlc_results.js?v=visual2"),
+        import("./dlc_video.js?v=resolution1"), import("./dlc_results.js?v=visual2"),
       ]);
       const modelFile = document.querySelector("#model-file").files[0];
+      const resolution = Number(document.querySelector("#resolution").value);
       const result = await analyzeDlcVideo(video, browserDlc, (fraction, message) => {
         progress.value = fraction;
         label.textContent = message;
         connection.textContent = message;
-      }, modelFile);
-      label.textContent = `Coordenadas provisionales · ${samplesPerSecond} muestras/s`;
+      }, modelFile, resolution);
+      label.textContent = `Coordenadas provisionales · ${samplesPerSecond} muestras/s · ${result.width} × ${result.height} px`;
       progress.remove();
       const button = document.createElement("button");
       button.type = "button";

@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Análisis 2D de marcha con DeepLabCut V4 y Sports2D.">
   <title>GaitLab 2D · Análisis de marcha</title>
-  <link rel="stylesheet" href="style.css?v=visual2">
+  <link rel="stylesheet" href="style.css?v=resolution1">
   <script type="application/json" id="deployment-config">{"browserDlc":{"runtime":"https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.webgpu.min.mjs","wasm":"https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/","model":"./snapshot-best-180-browser.onnx"}}</script>
-  <script src="app.js?v=visual2" type="module"></script>
+  <script src="app.js?v=resolution1" type="module"></script>
 </head>
 <body>
   <header>GaitLab <span>2D</span></header>
@@ -28,6 +28,15 @@
         <option value="dlc">DeepLabCut V4</option>
         <option value="sports2d">Sports2D</option>
       </select>
+      <div id="resolution-options" hidden>
+        <label for="resolution">Resolución de análisis</label>
+        <select id="resolution">
+          <option value="1280">Alta · hasta 1280 px</option>
+          <option value="1920">Máxima · hasta 1920 px</option>
+          <option value="640">Rápida · hasta 640 px</option>
+        </select>
+        <small>Una resolución más alta conserva más detalle y tarda más.</small>
+      </div>
       <label class="consent"><input type="checkbox" required> <span id="consent-label">Tengo autorización para enviar y analizar este video.</span></label>
       <button id="start" disabled>Analizar video</button>
       <p id="connection" role="status">Cargando la página de análisis…</p>
