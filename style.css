@@ -32,6 +32,11 @@ article button { margin: 6px 6px 0 0; }
 .dlc-visuals h4 { margin: 16px 0 0; font-size: 1.06rem; }
 .dlc-visuals p { margin: 0; color: #425b51; }
 .dlc-visuals > canvas { display: block; width: 100%; height: auto; }
+.dlc-visuals [hidden] { display: none; }
+.dlc-toggle { font-weight: 400; }
+.dlc-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: .9rem; }
+.dlc-legend .axis-x { color: #17664f; font-weight: 650; }
+.dlc-legend .axis-y { color: #a84905; font-weight: 650; }
 .dlc-player { position: relative; background: #162a26; overflow: hidden; border-radius: 8px; }
 .dlc-player video, .dlc-player canvas { display: block; width: 100%; height: auto; }
 .dlc-player canvas { position: absolute; inset: 0; pointer-events: none; }

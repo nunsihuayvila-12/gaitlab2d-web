@@ -81,7 +81,7 @@ async function analyze(video, engine) {
     if (browserDlc && engine === "dlc") {
       connection.textContent = label.textContent;
       const [{analyzeDlcVideo, samplesPerSecond}, {showDlcResults}] = await Promise.all([
-        import("./dlc_video.js?v=visual1"), import("./dlc_results.js"),
+        import("./dlc_video.js?v=visual1"), import("./dlc_results.js?v=visual2"),
       ]);
       const modelFile = document.querySelector("#model-file").files[0];
       const result = await analyzeDlcVideo(video, browserDlc, (fraction, message) => {
@@ -90,6 +90,7 @@ async function analyze(video, engine) {
         connection.textContent = message;
       }, modelFile);
       label.textContent = `Coordenadas provisionales · ${samplesPerSecond} muestras/s`;
+      progress.remove();
       const button = document.createElement("button");
       button.type = "button";
       button.textContent = "Descargar coordenadas CSV";
