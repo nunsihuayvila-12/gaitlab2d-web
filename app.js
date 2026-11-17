@@ -82,7 +82,7 @@ async function analyze(video, engine) {
     if (browserDlc && engine === "dlc") {
       connection.textContent = label.textContent;
       const [{analyzeDlcVideo, samplesPerSecond}, {showDlcResults}] = await Promise.all([
-        import("./dlc_video.js?v=resolution1"), import("./dlc_results.js?v=visual2"),
+        import("./dlc_video.js?v=decode2"), import("./dlc_results.js?v=visual2"),
       ]);
       const modelFile = document.querySelector("#model-file").files[0];
       const resolution = Number(document.querySelector("#resolution").value);

@@ -2,7 +2,7 @@ import { bodyparts, decodeBodyparts, normalizePixels } from "./dlc_pose.js";
 
 export const samplesPerSecond = 5;
 
-function waitForVideo(video, event, action) {
+function waitForVideo(video, event, action, stage) {
   return new Promise((resolve, reject) => {
     const remove = () => {
       clearTimeout(timer);
@@ -15,9 +15,10 @@ function waitForVideo(video, event, action) {
     };
     const failed = () => {
       remove();
-      reject(new Error("El navegador no pudo decodificar el video. Prueba con un MP4 codificado en H.264."));
+      const code = video.error?.code;
+      reject(new Error(`${stage}${code ? ` (error de video ${code})` : " (tiempo de espera agotado)"}.`));
     };
-    const timer = setTimeout(failed, 15000);
+    const timer = setTimeout(failed, 30000);
     video.addEventListener(event, ready, {once: true});
     video.addEventListener("error", failed, {once: true});
     action();
@@ -29,25 +30,30 @@ export async function analyzeDlcVideo(file, config, onProgress, modelFile, maxDi
   video.preload = "auto";
   video.muted = true;
   video.playsInline = true;
+  video.setAttribute("aria-hidden", "true");
+  video.style.cssText = "position:fixed;left:-16px;top:0;width:1px;height:1px;pointer-events:none";
+  document.body.append(video);
   let source = URL.createObjectURL(file);
   let playback = file;
   let session;
+  const open = stage => waitForVideo(video, "loadeddata", () => {
+    video.src = source;
+    video.load();
+  }, stage);
+  const convert = async () => {
+    onProgress(0, "Preparando un formato compatible en este navegador…");
+    const {convertVideoForBrowser} = await import("./video_compat.js?v=compat2");
+    const compatible = await convertVideoForBrowser(file, message => onProgress(0, message));
+    URL.revokeObjectURL(source);
+    playback = compatible;
+    source = URL.createObjectURL(compatible);
+    await open("El navegador no pudo abrir el video después de la conversión local");
+  };
   try {
     try {
-      await waitForVideo(video, "loadeddata", () => { video.src = source; });
+      await open("El navegador no pudo abrir el archivo original");
     } catch {
-      onProgress(0, "Preparando un formato compatible en este navegador…");
-      const {convertVideoForBrowser} = await import("./video_compat.js?v=compat2");
-      let compatible;
-      try {
-        compatible = await convertVideoForBrowser(file, message => onProgress(0, message));
-      } catch {
-        throw new Error("No se pudo abrir ni convertir este video. Prueba con un MP4 H.264 válido.");
-      }
-      URL.revokeObjectURL(source);
-      playback = compatible;
-      source = URL.createObjectURL(compatible);
-      await waitForVideo(video, "loadeddata", () => { video.src = source; });
+      await convert();
     }
     if (!video.videoWidth || !video.videoHeight || !(video.duration > 0 && video.duration <= 15)) {
       throw new Error("El video debe durar hasta 15 segundos y tener dimensiones válidas.");
@@ -87,8 +93,15 @@ export async function analyzeDlcVideo(file, config, onProgress, modelFile, maxDi
     const samples = [];
     for (let sample = 0; sample < count; sample++) {
       const timestamp = sample / samplesPerSecond;
-      if (video.currentTime !== timestamp) {
-        await waitForVideo(video, "seeked", () => { video.currentTime = timestamp; });
+      const seek = () => Math.abs(video.currentTime - timestamp) < 0.001 && video.readyState >= 2
+        ? Promise.resolve() : waitForVideo(video, "seeked", () => { video.currentTime = timestamp; },
+          `El navegador no pudo leer el fotograma en ${timestamp.toFixed(1)} s`);
+      try {
+        await seek();
+      } catch {
+        if (playback === file) await convert();
+        else await open("El navegador no pudo volver a abrir el video convertido");
+        await seek();
       }
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
@@ -107,6 +120,7 @@ export async function analyzeDlcVideo(file, config, onProgress, modelFile, maxDi
   } finally {
     video.removeAttribute("src");
     video.load();
+    video.remove();
     URL.revokeObjectURL(source);
     await session?.release();
   }
