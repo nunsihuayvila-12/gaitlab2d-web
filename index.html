@@ -12,18 +12,22 @@
   <header>GaitLab <span>2D</span></header>
   <main>
     <h1>Analiza tu marcha</h1>
-    <p>Sube un video y compara las salidas de DeepLabCut V4 y Sports2D.</p>
+    <p id="description">Sube un video y compara las salidas de DeepLabCut V4 y Sports2D.</p>
     <form>
       <label for="video">Video</label>
       <input id="video" type="file" accept=".mp4,.mov" aria-describedby="limits" required>
       <small id="limits">MP4 o MOV · hasta 50 MB, 15 segundos y 600 fotogramas</small>
+      <div id="local-model" hidden>
+        <label for="model-file">Modelo DeepLabCut V4 (.onnx)</label>
+        <input id="model-file" type="file" accept=".onnx">
+      </div>
       <label for="engine">Motor</label>
       <select id="engine">
         <option value="both">Ambos motores</option>
         <option value="dlc">DeepLabCut V4</option>
         <option value="sports2d">Sports2D</option>
       </select>
-      <label class="consent"><input type="checkbox" required> Tengo autorización para enviar y analizar este video.</label>
+      <label class="consent"><input type="checkbox" required> <span id="consent-label">Tengo autorización para enviar y analizar este video.</span></label>
       <button id="start" disabled>Analizar video</button>
       <p id="connection" role="status">Comprobando el servicio de análisis…</p>
     </form>
